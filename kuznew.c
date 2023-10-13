@@ -12,7 +12,8 @@
 u8 Mul_fx(u8 ax, u8 bx)
 {
     u8 result = 0;
-    for (int i = 0; i < n; i++)
+    int i;
+    for (i = 0; i < n; i++)
     {
         if (bit(bx, i))
         {
@@ -556,7 +557,8 @@ static const u8 pi_1[256] =
 // 128 = 16 u8, result in 'a'
 void X(u8 *a, const u8 *k)
 {
-    for (int i = 0; i < 16; i++)
+    int i;
+    for (i = 0; i < 16; i++)
     {
         a[i] ^= k[i];
     }
@@ -565,7 +567,8 @@ void X(u8 *a, const u8 *k)
 // 128 = 16 u8, result in 'a'
 void S(u8 *a)
 {
-    for (int i = 0; i < 16; i++)
+    int i;
+    for (i = 0; i < 16; i++)
     {
         a[i] = pi[a[i]];
     }
@@ -574,7 +577,8 @@ void S(u8 *a)
 // 128 = 16 u8, result in 'a'
 void S_1(u8 *a)
 {
-    for (int i = 0; i < 16; i++)
+    int i;
+    for (i = 0; i < 16; i++)
     {
         a[i] = pi_1[a[i]];
     }
@@ -584,7 +588,8 @@ void S_1(u8 *a)
 void R(u8 *a)
 {
     u8 tmp = l(a);
-    for (int i = 0; i < 15; i++)
+    int i;
+    for (i = 0; i < 15; i++)
     {
         a[i] = a[i + 1];
     }
@@ -595,7 +600,8 @@ void R(u8 *a)
 void R_1(u8 *a)
 {
     u8 tmp = a[15];
-    for (int i = 15; i > 0; i--)
+    int i;
+    for (i = 15; i > 0; i--)
     {
         a[i] = a[i - 1];
     }
@@ -608,7 +614,8 @@ void F(u8 *a1, u8 *a0, u8 *k)
 {
     // tmp* = a1*
     u8 tmp[16];
-    for (int i = 0; i < 16; i++)
+    int i;
+    for (i = 0; i < 16; i++)
     {
         tmp[i] = a1[i];
     }
@@ -618,14 +625,16 @@ void F(u8 *a1, u8 *a0, u8 *k)
         X(a1, k);
         S(a1);
         // L = R^16
-        for (int i = 0; i < 16; i++)
+        int i;
+        for (i = 0; i < 16; i++)
         {
             R(a1);
         }
     }
 
     // (a1'^a0, a1)
-    for (int i = 0; i < 16; i++)
+    int i;
+    for (i = 0; i < 16; i++)
     {
         a1[i] ^= a0[i];
         a0[i] = tmp[i];
@@ -635,7 +644,8 @@ void F(u8 *a1, u8 *a0, u8 *k)
 // assign 128=16u8 from *source to *res
 void Assign(u8 *source, u8 *res)
 {
-    for (int i = 0; i < 16; i++)
+    int i;
+    for (i = 0; i < 16; i++)
     {
         res[i] = source[i];
     }
@@ -651,17 +661,20 @@ void Deployment_key(u8 **res, u8 *k)
     // C= 32*128= matrix 32*16 u8
     u8 C[32][16];
     // C[i]= L( vec_128(i+1))
-    for (int i = 0; i < 32; i++)
+    int i;
+    for (i = 0; i < 32; i++)
     {
         // C[i]= vec_128(i+1)
-        for (int j = 0; j < 16; j++)
+        int j;
+        for (j = 0; j < 16; j++)
         {
             C[i][j] = 0;
         }
         C[i][0] = i + 1;
 
         // L = R^16
-        for (int t = 0; t < 16; t++)
+        int t;
+        for (t = 0; t < 16; t++)
         {
             R(C[i]);
         }
@@ -669,11 +682,13 @@ void Deployment_key(u8 **res, u8 *k)
 
     Assign(key[0], res[0]);
     Assign(key[1], res[1]);
-    for (int i = 1; i <= 4; i++)
+    int i;
+    for (i = 1; i <= 4; i++)
     {
         Assign(res[2 * i - 2], res[2 * i]);
         Assign(res[2 * i - 1], res[2 * i + 1]);
-        for (int j = 0; j < 8; j++)
+        int j;
+        for (j = 0; j < 8; j++)
         {
             F(res[2 * i], res[2 * i + 1], C[8 * (i - 1) + j]);
         }
@@ -682,13 +697,15 @@ void Deployment_key(u8 **res, u8 *k)
 
 void Encrypt(u8 *a, u8 **K)
 {
-    for (int i = 0; i < 9; i++)
+    int i;
+    for (i = 0; i < 9; i++)
     {
         // LSX(K[i])  X->S->L
         X(a, K[i]);
         S(a);
         // L = R^16
-        for (int t = 0; t < 16; t++)
+        int t;
+        for (t = 0; t < 16; t++)
         {
             R(a);
         }
@@ -699,11 +716,13 @@ void Encrypt(u8 *a, u8 **K)
 void Decrypt(u8 *a, u8 **K)
 {
     X(a, K[9]);
-    for (int i = 8; i >= 0; i--)
+    int i;
+    for (i = 8; i >= 0; i--)
     {
         // X(K[i])S_1L_1    L_1->S_1->X
         // L_1 = R_1^16
-        for (int i = 0; i < 16; i++)
+        int i;
+        for (i = 0; i < 16; i++)
         {
             R_1(a);
         }
@@ -717,7 +736,7 @@ void Decrypt(u8 *a, u8 **K)
 
 struct kuznyechik_ctx
 {
-    u8 key[10][16];
+    u8 key[10 * 16];
 };
 
 static int kuznyechik_setkey(struct crypto_tfm *tfm, const u8 *key,
