@@ -621,19 +621,17 @@ void F(u8 *a1, u8 *a0, u8 *k)
     }
 
     // LSX[k](a1) <=> X - S - L
+
+    X(a1, k);
+    S(a1);
+    // L = R^16
+    int t;
+    for (t = 0; t < 16; t++)
     {
-        X(a1, k);
-        S(a1);
-        // L = R^16
-        int i;
-        for (i = 0; i < 16; i++)
-        {
-            R(a1);
-        }
+        R(a1);
     }
 
     // (a1'^a0, a1)
-    int i;
     for (i = 0; i < 16; i++)
     {
         a1[i] ^= a0[i];
@@ -662,10 +660,12 @@ void Deployment_key(u8 **res, u8 *k)
     u8 C[32][16];
     // C[i]= L( vec_128(i+1))
     int i;
+    int j;
+    int t;
     for (i = 0; i < 32; i++)
     {
         // C[i]= vec_128(i+1)
-        int j;
+
         for (j = 0; j < 16; j++)
         {
             C[i][j] = 0;
@@ -673,7 +673,7 @@ void Deployment_key(u8 **res, u8 *k)
         C[i][0] = i + 1;
 
         // L = R^16
-        int t;
+
         for (t = 0; t < 16; t++)
         {
             R(C[i]);
@@ -682,12 +682,10 @@ void Deployment_key(u8 **res, u8 *k)
 
     Assign(key[0], res[0]);
     Assign(key[1], res[1]);
-    int i;
     for (i = 1; i <= 4; i++)
     {
         Assign(res[2 * i - 2], res[2 * i]);
         Assign(res[2 * i - 1], res[2 * i + 1]);
-        int j;
         for (j = 0; j < 8; j++)
         {
             F(res[2 * i], res[2 * i + 1], C[8 * (i - 1) + j]);
@@ -698,13 +696,14 @@ void Deployment_key(u8 **res, u8 *k)
 void Encrypt(u8 *a, u8 **K)
 {
     int i;
+    int t;
     for (i = 0; i < 9; i++)
     {
         // LSX(K[i])  X->S->L
         X(a, K[i]);
         S(a);
         // L = R^16
-        int t;
+
         for (t = 0; t < 16; t++)
         {
             R(a);
@@ -717,12 +716,13 @@ void Decrypt(u8 *a, u8 **K)
 {
     X(a, K[9]);
     int i;
+    int t;
     for (i = 8; i >= 0; i--)
     {
         // X(K[i])S_1L_1    L_1->S_1->X
         // L_1 = R_1^16
-        int i;
-        for (i = 0; i < 16; i++)
+
+        for (t = 0; t < 16; t++)
         {
             R_1(a);
         }
