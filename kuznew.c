@@ -649,7 +649,7 @@ void Assign(u8 *source, u8 *res)
 
 // res = 10*128= array 10*16 u8
 // k 256 = 2*128=  32 u8
-void Deployment_key(u8 *res, u8 *k)
+void Deployment_key(u8 *res,const u8 *k)
 {
     // C= 32*128= matrix 32*16 u8
     u8 C[32 * 16];
@@ -686,7 +686,7 @@ void Deployment_key(u8 *res, u8 *k)
     }
 }
 
-void Encrypt(u8 *a, u8 *K)
+void Encrypt(u8 *a,const u8 *K)
 {
     int i;
     int t;
@@ -705,11 +705,11 @@ void Encrypt(u8 *a, u8 *K)
     X(a, K + 16 * 9);
 }
 
-void Decrypt(u8 *a, u8 *K)
+void Decrypt(u8 *a,const u8 *K)
 {
-    X(a, K + 16 * 9);
     int i;
     int t;
+    X(a, K + 16 * 9);  
     for (i = 8; i >= 0; i--)
     {
         // X(K[i])S_1L_1    L_1->S_1->X
