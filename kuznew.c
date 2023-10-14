@@ -6,20 +6,19 @@
 
 #define fx 0b111000011
 #define bit(a, i) ((a >> i) & 1)
-#define n 8
 #define Shift_left(a, n, fx) (((a ^ (((a >> (n - 1)) & 1) << (n - 1))) << 1) ^ (fx * ((a >> (n - 1)) & 1)))
 
 u8 Mul_fx(u8 ax, u8 bx)
 {
     u8 result = 0;
     int i;
-    for (i = 0; i < n; i++)
+    for (i = 0; i < 8; i++)
     {
         if (bit(bx, i))
         {
             result = result ^ ax;
         }
-        ax = Shift_left(ax, n, fx);
+        ax = Shift_left(ax, 8, fx);
     }
     return result;
 }
@@ -625,8 +624,7 @@ void F(u8 *a1, u8 *a0, u8 *k)
     X(a1, k);
     S(a1);
     // L = R^16
-    int t;
-    for (t = 0; t < 16; t++)
+    for (i = 0; i < 16; i++)
     {
         R(a1);
     }
@@ -649,15 +647,12 @@ void Assign(u8 *source, u8 *res)
     }
 }
 
-// res = 10*128= matrix 10*16 u8
+// res = 10*128= array 10*16 u8
 // k 256 = 2*128=  32 u8
-void Deployment_key(u8 **res, u8 *k)
+void Deployment_key(u8 *res, u8 *k)
 {
-    u8 key[2][16];
-    memmove(key[0], k, 16);
-    memmove(key[1], k + 16, 16);
     // C= 32*128= matrix 32*16 u8
-    u8 C[32][16];
+    u8 C[32 * 16];
     // C[i]= L( vec_128(i+1))
     int i;
     int j;
@@ -668,39 +663,37 @@ void Deployment_key(u8 **res, u8 *k)
 
         for (j = 0; j < 16; j++)
         {
-            C[i][j] = 0;
+            C[i * 16 + j] = 0;
         }
-        C[i][0] = i + 1;
+        C[i * 16 + 0] = i + 1;
 
         // L = R^16
 
         for (t = 0; t < 16; t++)
         {
-            R(C[i]);
+            R(C + 16 * i);
         }
     }
 
-    Assign(key[0], res[0]);
-    Assign(key[1], res[1]);
+    memmove(res, k, 32);
     for (i = 1; i <= 4; i++)
     {
-        Assign(res[2 * i - 2], res[2 * i]);
-        Assign(res[2 * i - 1], res[2 * i + 1]);
+        memcpy(res + 16 * 2 * i, res + 16 * (2 * i - 2), 32);
         for (j = 0; j < 8; j++)
         {
-            F(res[2 * i], res[2 * i + 1], C[8 * (i - 1) + j]);
+            F(res + 16 * 2 * i, res + 16 * (2 * i + 1), C + 16 * (8 * (i - 1) + j));
         }
     }
 }
 
-void Encrypt(u8 *a, u8 **K)
+void Encrypt(u8 *a, u8 *K)
 {
     int i;
     int t;
     for (i = 0; i < 9; i++)
     {
         // LSX(K[i])  X->S->L
-        X(a, K[i]);
+        X(a, K + 16 * i);
         S(a);
         // L = R^16
 
@@ -709,12 +702,12 @@ void Encrypt(u8 *a, u8 **K)
             R(a);
         }
     }
-    X(a, K[9]);
+    X(a, K + 16 * 9);
 }
 
-void Decrypt(u8 *a, u8 **K)
+void Decrypt(u8 *a, u8 *K)
 {
-    X(a, K[9]);
+    X(a, K + 16 * 9);
     int i;
     int t;
     for (i = 8; i >= 0; i--)
@@ -727,7 +720,7 @@ void Decrypt(u8 *a, u8 **K)
             R_1(a);
         }
         S_1(a);
-        X(a, K[i]);
+        X(a, K + 16 * i);
     }
 }
 
