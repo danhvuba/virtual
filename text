@@ -1,0 +1,37 @@
+Команды:
+
+Установить модули: 
+
+# sudo make install
+
+# sudo modinfo **.ko
+
+# sudo cat /proc/crypto | grep **
+
+Посмотреть список разделов: 
+
+# sudo fdisk -l
+
+Шифрование данных:
+
+# sudo cryptsetup luksFormat --type luks1 --cipher *** --key-size ** /dev/sda3
+
+Проверки результатов:
+
+# sudo cryptsetup luksDump /dev/sda3 
+
+——или— # sudo hd /dev/sda3 -n 112
+
+Открытия раздела: 
+
+# sudo cryptsetup open /dev/sda3 **
+
+# sudo mkfs -t ext4 /dev/mapper/**
+
+Закрытия раздела:
+
+# sudo cryptsetup close ***
+
+Проверки скорости:
+
+# sudo cryptsetup benchmark --cipher **-cbc
