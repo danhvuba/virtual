@@ -35,3 +35,6 @@
 Проверки скорости:
 
 # sudo cryptsetup benchmark --cipher **-cbc
+
+Удаление модулей:
+# sudo make clean
