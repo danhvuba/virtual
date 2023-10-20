@@ -284,8 +284,8 @@ static void sm4_decrypt(struct crypto_tfm *tfm, u8 *out, const u8 *in)
 }
 
 static struct crypto_alg sm4_alg = {
-	.cra_name		=	"sm4",
-	.cra_driver_name	=	"sm4-generic",
+	.cra_name		=	"newsm4",
+	.cra_driver_name	=	"newsm4-generic",
 	.cra_priority		=	100,
 	.cra_flags		=	CRYPTO_ALG_TYPE_CIPHER,
 	.cra_blocksize		=	SM4_BLOCK_SIZE,
